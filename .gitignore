@@ -151,6 +151,15 @@ activemq-data/
 
 # Environments
 .env
+data/
+models/
+*.pt
+*.pth
+*.ckpt
+*.h5
+wandb/
+mlruns/
+.ipynb_checkpoints/
 .envrc
 .venv
 env/

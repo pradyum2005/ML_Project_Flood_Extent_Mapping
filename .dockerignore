@@ -1,0 +1,12 @@
+.git
+.venv
+.myvenv
+__pycache__/
+*.pyc
+.env
+data/
+models/
+notebooks/
+.ipynb_checkpoints/
+wandb/
+mlruns/
