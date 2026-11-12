@@ -3,13 +3,12 @@
     1. MNDWI threshold: no learning, just "water if MNDWI > threshold".
     2. Logistic regression on all 22 features.
 
-Reads data/processed/samples.npz (made by features.py) and saves
-outputs/baseline_results.csv.
-
 Usage (from the project folder):
-    python src/baselines.py
+    python src/baselines.py          # data/processed/samples.npz      -> outputs/baseline_results.csv
+    python src/baselines.py weak     # data/processed/samples_weak.npz -> outputs/baseline_results_weak.csv
 """
 import csv
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -17,10 +16,38 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-SAMPLES_PATH = Path("data/processed/samples.npz")
+PROCESSED_DIR = Path("data/processed")
 OUTPUT_DIR = Path("outputs")
 
+# For each source: the input file, and the ending added to output file names
+SAMPLE_FILES = {"hand": "samples.npz", "weak": "samples_weak.npz"}
+OUTPUT_ENDINGS = {"hand": "", "weak": "_weak"}
+
 MNDWI_THRESHOLD = 0.0
+
+
+def choose_source():
+    """'hand' unless the command line says 'weak' (python src/baselines.py weak)."""
+    source = "hand"
+    if len(sys.argv) > 1:
+        source = sys.argv[1]
+    if source not in SAMPLE_FILES:
+        raise SystemExit(f"Unknown source: {source}. Use one of {list(SAMPLE_FILES)}")
+    return source
+
+
+def new_output_path(base_name):
+    """A CSV path that does not exist yet, so an old result is never overwritten.
+
+    base_name "baseline_results" gives baseline_results.csv the first time,
+    then baseline_results2.csv, baseline_results3.csv, and so on.
+    """
+    path = OUTPUT_DIR / f"{base_name}.csv"
+    number = 2
+    while path.exists():
+        path = OUTPUT_DIR / f"{base_name}{number}.csv"
+        number += 1
+    return path
 
 
 def metrics(y_true, y_pred):
@@ -72,7 +99,11 @@ def results_by_event(y, y_pred, event, model_name):
 
 
 def main():
-    data = np.load(SAMPLES_PATH)
+    source = choose_source()
+    samples_path = PROCESSED_DIR / SAMPLE_FILES[source]
+    print(f"Source: {source}")
+
+    data = np.load(samples_path)
     X, y, event = data["X"], data["y"], data["event"]
     feature_names = data["feature_names"]
     print(f"Loaded {X.shape[0]} rows, {X.shape[1]} features, {len(set(event))} events")
@@ -93,7 +124,7 @@ def main():
         print(f"{row[0]:<20}{row[1]:<12}" + "".join(f"{v:>11}" for v in row[2:]))
 
     OUTPUT_DIR.mkdir(exist_ok=True)
-    out_path = OUTPUT_DIR / "baseline_results.csv"
+    out_path = new_output_path(f"baseline_results{OUTPUT_ENDINGS[source]}")
     with open(out_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)

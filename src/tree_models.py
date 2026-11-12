@@ -4,24 +4,23 @@ Same idea as baselines.py: hold out one event, train on the other 10,
 predict the held-out one. Tree models do not need feature scaling.
 
 Run from the project folder:
-    python src/tree_models.py
+    python src/tree_models.py          # samples.npz      -> outputs/tree_model_results.csv
+    python src/tree_models.py weak     # samples_weak.npz -> outputs/tree_model_results_weak.csv
 """
 import csv
-from pathlib import Path
 
 import numpy as np
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from baselines import results_by_event
-
-SAMPLES_PATH = Path("data/processed/samples.npz")
-OUTPUT_DIR = Path("outputs")
+from baselines import OUTPUT_DIR, OUTPUT_ENDINGS, PROCESSED_DIR, SAMPLE_FILES
+from baselines import choose_source, new_output_path, results_by_event
 
 
-def load_data():
+def load_data(source):
     """Load the features, labels and event names made by features.py."""
-    data = np.load(SAMPLES_PATH)
+    samples_path = PROCESSED_DIR / SAMPLE_FILES[source]
+    data = np.load(samples_path)
     X = data["X"]
     y = data["y"]
     event = data["event"]
@@ -35,7 +34,7 @@ def make_random_forest():
         min_samples_leaf=10,
         class_weight="balanced",
         n_jobs=-1,
-        random_state=1,
+        random_state=0,
     )
     return model
 
@@ -47,7 +46,7 @@ def make_lightgbm():
         learning_rate=0.1,
         class_weight="balanced",
         n_jobs=-1,
-        random_state=1,
+        random_state=0,
         verbose=-1,
     )
     return model
@@ -95,7 +94,9 @@ def save_table(rows, path):
 
 
 def main():
-    X, y, event = load_data()
+    source = choose_source()
+    print("Source:", source)
+    X, y, event = load_data(source)
     print("Rows:", X.shape[0], " Features:", X.shape[1])
 
     all_rows = []
@@ -110,7 +111,7 @@ def main():
 
     print_table(all_rows)
 
-    out_path = OUTPUT_DIR / "tree_model_results.csv"
+    out_path = new_output_path(f"tree_model_results{OUTPUT_ENDINGS[source]}")
     save_table(all_rows, out_path)
     print("\nSaved table to", out_path)
 
