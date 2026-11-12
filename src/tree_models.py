@@ -3,9 +3,10 @@
 Same idea as baselines.py: hold out one event, train on the other 10,
 predict the held-out one. Tree models do not need feature scaling.
 
+Saves outputs/tree_model_results.csv (numbered, so old results are never overwritten).
+
 Run from the project folder:
-    python src/tree_models.py          # samples.npz      -> outputs/tree_model_results.csv
-    python src/tree_models.py weak     # samples_weak.npz -> outputs/tree_model_results_weak.csv
+    python src/tree_models.py
 """
 import csv
 
@@ -13,14 +14,12 @@ import numpy as np
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from baselines import OUTPUT_DIR, OUTPUT_ENDINGS, PROCESSED_DIR, SAMPLE_FILES
-from baselines import choose_source, new_output_path, results_by_event
+from baselines import OUTPUT_DIR, SAMPLES_PATH, new_output_path, results_by_event
 
 
-def load_data(source):
+def load_data():
     """Load the features, labels and event names made by features.py."""
-    samples_path = PROCESSED_DIR / SAMPLE_FILES[source]
-    data = np.load(samples_path)
+    data = np.load(SAMPLES_PATH)
     X = data["X"]
     y = data["y"]
     event = data["event"]
@@ -94,9 +93,7 @@ def save_table(rows, path):
 
 
 def main():
-    source = choose_source()
-    print("Source:", source)
-    X, y, event = load_data(source)
+    X, y, event = load_data()
     print("Rows:", X.shape[0], " Features:", X.shape[1])
 
     all_rows = []
@@ -111,7 +108,7 @@ def main():
 
     print_table(all_rows)
 
-    out_path = new_output_path(f"tree_model_results{OUTPUT_ENDINGS[source]}")
+    out_path = new_output_path("tree_model_results")
     save_table(all_rows, out_path)
     print("\nSaved table to", out_path)
 

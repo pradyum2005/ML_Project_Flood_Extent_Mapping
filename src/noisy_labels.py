@@ -19,6 +19,7 @@ Run from the project folder (model is lightgbm unless you name another):
     python src/noisy_labels.py
     python src/noisy_labels.py logistic_regression
     python src/noisy_labels.py random_forest
+    python src/noisy_labels.py mlp
 """
 import random
 import sys
@@ -29,6 +30,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from baselines import PROCESSED_DIR, new_output_path, results_by_event
+from mlp import make_mlp
 from tree_models import make_lightgbm, make_random_forest, save_table
 
 # How many weak chips to train on (in total, spread equally over the events)
@@ -56,6 +58,7 @@ MODELS = {
     "logistic_regression": make_logistic_regression,
     "random_forest": make_random_forest,
     "lightgbm": make_lightgbm,
+    "mlp": make_mlp,
 }
 
 

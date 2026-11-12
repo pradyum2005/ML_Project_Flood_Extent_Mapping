@@ -3,12 +3,13 @@
     1. MNDWI threshold: no learning, just "water if MNDWI > threshold".
     2. Logistic regression on all 22 features.
 
+Reads data/processed/samples.npz (made by features.py) and saves
+outputs/baseline_results.csv (numbered, so old results are never overwritten).
+
 Usage (from the project folder):
-    python src/baselines.py          # data/processed/samples.npz      -> outputs/baseline_results.csv
-    python src/baselines.py weak     # data/processed/samples_weak.npz -> outputs/baseline_results_weak.csv
+    python src/baselines.py
 """
 import csv
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -17,23 +18,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 PROCESSED_DIR = Path("data/processed")
+SAMPLES_PATH = PROCESSED_DIR / "samples.npz"
 OUTPUT_DIR = Path("outputs")
 
-# For each source: the input file, and the ending added to output file names
-SAMPLE_FILES = {"hand": "samples.npz", "weak": "samples_weak.npz"}
-OUTPUT_ENDINGS = {"hand": "", "weak": "_weak"}
-
 MNDWI_THRESHOLD = 0.0
-
-
-def choose_source():
-    """'hand' unless the command line says 'weak' (python src/baselines.py weak)."""
-    source = "hand"
-    if len(sys.argv) > 1:
-        source = sys.argv[1]
-    if source not in SAMPLE_FILES:
-        raise SystemExit(f"Unknown source: {source}. Use one of {list(SAMPLE_FILES)}")
-    return source
 
 
 def new_output_path(base_name):
@@ -99,11 +87,7 @@ def results_by_event(y, y_pred, event, model_name):
 
 
 def main():
-    source = choose_source()
-    samples_path = PROCESSED_DIR / SAMPLE_FILES[source]
-    print(f"Source: {source}")
-
-    data = np.load(samples_path)
+    data = np.load(SAMPLES_PATH)
     X, y, event = data["X"], data["y"], data["event"]
     feature_names = data["feature_names"]
     print(f"Loaded {X.shape[0]} rows, {X.shape[1]} features, {len(set(event))} events")
@@ -124,7 +108,7 @@ def main():
         print(f"{row[0]:<20}{row[1]:<12}" + "".join(f"{v:>11}" for v in row[2:]))
 
     OUTPUT_DIR.mkdir(exist_ok=True)
-    out_path = new_output_path(f"baseline_results{OUTPUT_ENDINGS[source]}")
+    out_path = new_output_path("baseline_results")
     with open(out_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)
