@@ -3,11 +3,11 @@
     1. MNDWI threshold: no learning, just "water if MNDWI > threshold".
     2. Logistic regression on all 22 features.
 
-Reads data/processed/samples.npz (made by features.py) and saves
+Reads data/processed/samples.npz (made by step03_features.py) and saves
 outputs/baseline_results.csv (numbered, so old results are never overwritten).
 
 Usage (from the project folder):
-    python src/baselines.py
+    python src/step04_baselines.py
 """
 import csv
 from pathlib import Path

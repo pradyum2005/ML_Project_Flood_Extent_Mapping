@@ -1,7 +1,7 @@
 """Summarize the whole hand-labeled set, one row per flood event.
 
 Usage (from the project folder):
-    python src/summarize_data.py
+    python src/step02_summarize_data.py
 
 Prints a table and saves it to outputs/data_summary.csv.
 """

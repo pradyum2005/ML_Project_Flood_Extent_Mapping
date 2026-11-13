@@ -1,8 +1,8 @@
 """Inspect one Sen1Floods11 hand-labeled chip: print its stats and plot it.
 
 Usage (from the project folder):
-    python src/inspect_chip.py                      # inspects the first chip found
-    python src/inspect_chip.py Ghana_103272         # inspects a specific chip
+    python src/step01_inspect_chip.py                      # inspects the first chip found
+    python src/step01_inspect_chip.py Ghana_103272         # inspects a specific chip
 """
 import sys
 from pathlib import Path

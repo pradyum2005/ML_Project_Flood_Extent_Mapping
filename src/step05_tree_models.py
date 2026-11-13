@@ -1,12 +1,12 @@
 """Random Forest and LightGBM, tested one flood event at a time.
 
-Same idea as baselines.py: hold out one event, train on the other 10,
+Same idea as step04_baselines.py: hold out one event, train on the other 10,
 predict the held-out one. Tree models do not need feature scaling.
 
 Saves outputs/tree_model_results.csv (numbered, so old results are never overwritten).
 
 Run from the project folder:
-    python src/tree_models.py
+    python src/step05_tree_models.py
 """
 import csv
 
@@ -14,11 +14,11 @@ import numpy as np
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from baselines import OUTPUT_DIR, SAMPLES_PATH, new_output_path, results_by_event
+from step04_baselines import OUTPUT_DIR, SAMPLES_PATH, new_output_path, results_by_event
 
 
 def load_data():
-    """Load the features, labels and event names made by features.py."""
+    """Load the features, labels and event names made by step03_features.py."""
     data = np.load(SAMPLES_PATH)
     X = data["X"]
     y = data["y"]

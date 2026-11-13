@@ -11,15 +11,15 @@ The held-out event's weak rows are never used for training.
 The number of weak chips is varied (WEAK_CHIP_COUNTS) to see if more weak
 data keeps helping. Each count uses the same number of chips per event.
 
-Needs both files made by features.py:
-    python src/features.py          -> data/processed/samples.npz
-    python src/features.py weak     -> data/processed/samples_weak.npz
+Needs both files made by step03_features.py:
+    python src/step03_features.py          -> data/processed/samples.npz
+    python src/step03_features.py weak     -> data/processed/samples_weak.npz
 
 Run from the project folder (model is lightgbm unless you name another):
-    python src/noisy_labels.py
-    python src/noisy_labels.py logistic_regression
-    python src/noisy_labels.py random_forest
-    python src/noisy_labels.py mlp
+    python src/step08_noisy_labels.py
+    python src/step08_noisy_labels.py logistic_regression
+    python src/step08_noisy_labels.py random_forest
+    python src/step08_noisy_labels.py mlp
 """
 import random
 import sys
@@ -29,9 +29,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from baselines import PROCESSED_DIR, new_output_path, results_by_event
-from mlp import make_mlp
-from tree_models import make_lightgbm, make_random_forest, save_table
+from step04_baselines import PROCESSED_DIR, new_output_path, results_by_event
+from step06_mlp import make_mlp
+from step05_tree_models import make_lightgbm, make_random_forest, save_table
 
 # How many weak chips to train on (in total, spread equally over the events)
 WEAK_CHIP_COUNTS = [2000]
@@ -73,7 +73,7 @@ def choose_model_name():
 
 
 def load_samples(file_name):
-    """Load X, y, event and chip from a samples file made by features.py."""
+    """Load X, y, event and chip from a samples file made by step03_features.py."""
     data = np.load(PROCESSED_DIR / file_name)
     return data["X"], data["y"], data["event"], data["chip"]
 
@@ -82,7 +82,7 @@ def choose_weak_chips(weak_event, weak_chip, how_many):
     """Pick how_many weak chips, the same number from every event.
 
     Chips are handed out one per event in turn (random inside each event),
-    like in download_weak.py. A bigger how_many always contains the smaller
+    like in step07_download_weak.py. A bigger how_many always contains the smaller
     ones, so the training sets grow step by step.
     """
     # Find the chips of each event (a chip has many rows, so look at each chip once)

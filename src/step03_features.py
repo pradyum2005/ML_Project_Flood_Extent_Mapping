@@ -6,8 +6,8 @@ Each pixel gets 22 features:
     5x5 window mean and variance of each band (12 features)
 
 Usage (from the project folder):
-    python src/features.py          # hand labels -> data/processed/samples.npz
-    python src/features.py weak     # weak labels -> data/processed/samples_weak.npz
+    python src/step03_features.py          # hand labels -> data/processed/samples.npz
+    python src/step03_features.py weak     # weak labels -> data/processed/samples_weak.npz
 """
 import sys
 from pathlib import Path
@@ -179,7 +179,7 @@ def build_dataset(chip_ids, source="hand", n_per_class=1000, seed=0):
 
 
 def main():
-    # "hand" unless the command line says otherwise: python src/features.py weak
+    # "hand" unless the command line says otherwise: python src/step03_features.py weak
     source = "hand"
     if len(sys.argv) > 1:
         source = sys.argv[1]

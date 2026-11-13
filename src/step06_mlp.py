@@ -1,20 +1,20 @@
 """Shallow neural network (MLP), tested one flood event at a time.
 
-Same idea as baselines.py and tree_models.py: hold out one event, train on
+Same idea as step04_baselines.py and step05_tree_models.py: hold out one event, train on
 the other 10, predict the held-out one. A neural network needs scaled
 features, so a StandardScaler comes first (fitted on training data only).
 
 Saves outputs/mlp_results.csv (numbered, so old results are never overwritten).
 
 Run from the project folder:
-    python src/mlp.py
+    python src/step06_mlp.py
 """
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from baselines import new_output_path, results_by_event
-from tree_models import load_data, predict_leave_one_event_out, print_table, save_table
+from step04_baselines import new_output_path, results_by_event
+from step05_tree_models import load_data, predict_leave_one_event_out, print_table, save_table
 
 
 def make_mlp():

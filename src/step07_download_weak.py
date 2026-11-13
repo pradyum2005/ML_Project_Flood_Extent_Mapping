@@ -6,7 +6,7 @@ event (random inside each event), and downloads the matching images
 (S2Weak) from the public sen1floods11 bucket.
 
 Run from the project folder:
-    python src/download_weak.py
+    python src/step07_download_weak.py
 
 It is safe to stop and run again: files already downloaded are skipped.
 To get more chips later, raise NUM_CHIPS. The chips already chosen stay
