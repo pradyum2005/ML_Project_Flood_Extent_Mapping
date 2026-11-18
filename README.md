@@ -5,7 +5,8 @@ Every pixel of a Sentinel-2 image is classified as **water** or **land** from 22
 neighbourhood features. Models are always tested on **flood events they have never seen**.
 
 The project compares a non-ML index baseline (MNDWI) with logistic regression, Random Forest,
-LightGBM and a shallow neural network (MLP), and also studies:
+LightGBM and a shallow neural network (MLP), plus a **U-Net** trained from scratch that learns its
+own spatial features from whole images. It also studies:
 
 - training on **weak (automatically made) labels** instead of hand labels,
 - the gap between scores on a **balanced sample** and on **every pixel of real chips**,
@@ -102,14 +103,37 @@ overwritten: if a file already exists, a number is added (`..._results2.csv`, `3
 | 10 | `step10_class_imbalance.py` | Balanced vs natural sample × class weight on/off × thresholds 0.3–0.9 | `outputs/class_imbalance_results_<model>.csv` | ~40 min (LightGBM), ~6 min (logistic regression) |
 | 11 | `step11_flood_maps.py` | Best setup for LightGBM, Random Forest and MLP; flood maps with JRC permanent water removed | `outputs/flood_map_results.csv`, `outputs/flood_maps/` | ~1 hour |
 | 12 | `step12_error_analysis.py` | Permutation importance + error analysis of step 11's maps | `outputs/permutation_importance.csv/.png`, `per_chip_errors.csv`, `error_breakdown.csv`, `error_feature_means.csv`, `outputs/worst_chips/` | ~10 min |
+| 13 | `step13_unet.py` | U-Net trained from scratch on the same 6 bands, one held-out event per run, scored on full chips like step 11 | `outputs/unet_results.csv`, `models/unet_<event>.pt`, `data/processed/unet_predictions/` | ~15–30 min per event on a GPU (estimate); much slower on a CPU |
 
-\*Measured or estimated on an 8-core laptop without a GPU. Keep the computer from sleeping during
-long runs: a sleeping laptop pauses the run.
+\*Measured or estimated on an 8-core laptop without a GPU, except step 13. Keep the computer from
+sleeping during long runs: a sleeping laptop pauses the run.
 
 Model settings: logistic regression with feature scaling; Random Forest with 100 trees and
 `min_samples_leaf=10`; LightGBM with 200 trees and learning rate 0.1; MLP with hidden layers
 (64, 32), batch size 1024, early stopping, at most 50 epochs. `random_state=0` everywhere. Steps
 4–9 use `class_weight="balanced"` where the model supports it; steps 10–11 compare it with no weight.
+
+### U-Net (step 13)
+
+The per-pixel models only see a 5 × 5 window. The U-Net sees the whole chip: it shrinks the image
+four times (512 → 32 pixels) to gather wide context, then grows it back to full size, with skip
+connections that keep fine detail. It uses the **same 6 bands** as the other models, so the
+comparison is *learned spatial context* vs *hand-made window features*.
+
+- **Model:** standard U-Net, 4 levels, 32 channels in the first level (about 7.8 million weights),
+  batch norm and ReLU.
+- **Input:** the 6 bands / 10000, standardised with the training chips' mean and std; invalid
+  pixels set to 0.
+- **Loss:** binary cross-entropy on valid pixels only, **no class weight** (step 10 showed class
+  weighting causes false alarms).
+- **Training:** one random 256 × 256 crop of every training chip per epoch, random flips, Adam
+  (learning rate 0.001), batch size 8, 50 epochs. 10% of the training chips are kept for
+  validation, and the epoch with the best validation IoU is kept.
+- **Testing:** the full 512 × 512 chips of the held-out event, scored on every valid pixel as
+  `all_water` and `flood_only`, the same as step 11.
+
+Each run handles one held-out event, because Colab sessions can stop at any time. Finished events
+are saved and skipped by later runs, and `summary` combines them into one table.
 
 ## Results
 
@@ -169,10 +193,16 @@ sensitivity check, not as tuned results.
 `all_water` (every valid pixel, comparable with steps 9–10) and `flood_only` (JRC permanent water
 left out, so only the water added by the flood is scored).
 
+### U-Net (step 13)
+
+*Results to be added after running step 13.* Its `all_water` and `flood_only` scores compare
+directly with step 11 (same events, same pixels, same metrics). The `ALL` row is only comparable
+once all 11 events have been run.
+
 ## Limitations
 
-- **Per-pixel models with a 5 × 5 window only.** Wider spatial context (as in a U-Net) was not
-  used; there was no GPU available.
+- **Spatial context is limited for the classical models.** They only see a 5 × 5 window; the
+  U-Net (step 13) is the only model with wide spatial context, and it was not tuned.
 - **Optical data only.** Sentinel-2 cannot see through clouds; Sentinel-1 radar, which is also in
   Sen1Floods11, was not used.
 - **No hyperparameter tuning.** Default-style settings were used for every model.
@@ -202,4 +232,28 @@ python src/step12_error_analysis.py
 
 Steps 4–10 need `data/processed/samples.npz` (step 3), and step 8 also needs `samples_weak.npz`.
 Steps 10–12 build `data/processed/samples_natural.npz` themselves if it is missing. Step 12's
-error analysis needs the maps saved by step 11.
+error analysis needs the maps saved by step 11. Step 13 only needs the hand-labelled data.
+
+### Running the U-Net (step 13)
+
+It runs on a CPU, but a GPU is strongly recommended. On **Google Colab**: put the project folder
+(with `data/HandLabeled/`) in Google Drive, choose **Runtime → Change runtime type → T4 GPU**,
+then run:
+
+```python
+from google.colab import drive
+drive.mount("/content/drive")
+```
+```python
+%cd /content/drive/MyDrive/ML_Project_Flood_Extent_Mapping
+!pip install -q rasterio lightgbm
+```
+```python
+!python src/step13_unet.py Bolivia     # one held-out event (start here)
+!python src/step13_unet.py all         # every event not finished yet
+!python src/step13_unet.py summary     # combine finished events into outputs/unet_results.csv
+```
+
+Working inside the Drive folder means the models, counts and maps survive the session ending. The
+first run reads the `.tif` files once and caches them as `data/processed/unet_chips.npz`
+(about 1.4 GB), so later runs start quickly.
