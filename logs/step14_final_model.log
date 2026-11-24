@@ -1,0 +1,5 @@
+Loading natural sample from data/processed/samples_natural.npz
+Natural sample: 879892 rows, 10.6% water, 11 events
+Trained LightGBM on all events in 2 s
+Training-sample IoU 0.878 (optimistic: these pixels were trained on; the honest score is step 11's 0.844)
+Saved final model to models/lightgbm_final.joblib

@@ -1,0 +1,182 @@
+Tue Nov 24 01:45:14 AM IST 2026
+Building natural sample (only needed once)...
+Saved natural sample to data/processed/samples_natural.npz
+Natural sample: 879892 rows, 10.6% water
+Saving figures to outputs/flood_maps
+Saving chip maps to data/processed/flood_map_predictions
+
+Bolivia
+    trained lightgbm in 2 s
+    trained random_forest in 29 s
+/home/siddhant/miniconda3/lib/python3.13/site-packages/sklearn/neural_network/_multilayer_perceptron.py:785: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (50) reached and the optimization hasn't converged yet.
+  warnings.warn(
+    trained mlp in 28 s
+    saved figure for Bolivia_129334 (152649 flood pixels)
+    finished Bolivia in 1.1 min
+
+Ghana
+    trained lightgbm in 2 s
+    trained random_forest in 24 s
+    trained mlp in 23 s
+    saved figure for Ghana_868803 (137697 flood pixels)
+    finished Ghana in 1.0 min
+
+India
+    trained lightgbm in 2 s
+    trained random_forest in 24 s
+/home/siddhant/miniconda3/lib/python3.13/site-packages/sklearn/neural_network/_multilayer_perceptron.py:785: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (50) reached and the optimization hasn't converged yet.
+  warnings.warn(
+    trained mlp in 27 s
+    saved figure for India_747992 (117322 flood pixels)
+    finished India in 1.2 min
+
+Mekong
+    trained lightgbm in 2 s
+    trained random_forest in 28 s
+    trained mlp in 18 s
+    saved figure for Mekong_1248200 (204129 flood pixels)
+    finished Mekong in 1.0 min
+
+Nigeria
+    trained lightgbm in 2 s
+    trained random_forest in 30 s
+/home/siddhant/miniconda3/lib/python3.13/site-packages/sklearn/neural_network/_multilayer_perceptron.py:785: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (50) reached and the optimization hasn't converged yet.
+  warnings.warn(
+    trained mlp in 27 s
+    saved figure for Nigeria_529525 (220735 flood pixels)
+    finished Nigeria in 1.1 min
+
+Pakistan
+    trained lightgbm in 2 s
+    trained random_forest in 29 s
+    trained mlp in 29 s
+    saved figure for Pakistan_849790 (171908 flood pixels)
+    finished Pakistan in 1.1 min
+
+Paraguay
+    trained lightgbm in 2 s
+    trained random_forest in 26 s
+    trained mlp in 23 s
+    saved figure for Paraguay_581976 (148808 flood pixels)
+    finished Paraguay in 1.2 min
+
+Somalia
+    trained lightgbm in 2 s
+    trained random_forest in 28 s
+/home/siddhant/miniconda3/lib/python3.13/site-packages/sklearn/neural_network/_multilayer_perceptron.py:785: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (50) reached and the optimization hasn't converged yet.
+  warnings.warn(
+    trained mlp in 28 s
+    saved figure for Somalia_886726 (82995 flood pixels)
+    finished Somalia in 1.1 min
+
+Spain
+    trained lightgbm in 2 s
+    trained random_forest in 27 s
+    trained mlp in 22 s
+    saved figure for Spain_7387658 (135219 flood pixels)
+    finished Spain in 1.0 min
+
+Sri-Lanka
+    trained lightgbm in 2 s
+    trained random_forest in 27 s
+    trained mlp in 24 s
+    saved figure for Sri-Lanka_92824 (52278 flood pixels)
+    finished Sri-Lanka in 1.1 min
+
+USA
+    trained lightgbm in 2 s
+    trained random_forest in 23 s
+    trained mlp in 23 s
+    saved figure for USA_86502 (58190 flood pixels)
+    finished USA in 1.2 min
+
+model             scored_on       IoU      F1  precision    recall
+mndwi_threshold   all_water     0.596   0.747      0.609     0.964
+mndwi_threshold   flood_only    0.512   0.677      0.525     0.951
+lightgbm          all_water     0.844   0.915      0.921     0.910
+lightgbm          flood_only    0.796   0.886      0.894     0.879
+random_forest     all_water     0.851   0.920      0.940     0.900
+random_forest     flood_only    0.805   0.892      0.920     0.866
+mlp               all_water     0.837   0.911      0.933     0.891
+mlp               flood_only    0.786   0.880      0.910     0.853
+
+Saved table to outputs/flood_map_results.csv
+Total time: 12.1 min
+
+Part 1: permutation importance
+Loading natural sample from data/processed/samples_natural.npz
+    finished Bolivia in 3 s
+    finished Ghana in 5 s
+    finished India in 8 s
+    finished Mekong in 5 s
+    finished Nigeria in 4 s
+    finished Pakistan in 4 s
+    finished Paraguay in 7 s
+    finished Somalia in 4 s
+    finished Spain in 4 s
+    finished Sri-Lanka in 5 s
+    finished USA in 7 s
+Saved table to outputs/permutation_importance.csv
+
+feature          IoU drop (mean over events)
+mndwi              0.6003
+ndvi               0.5039
+ndwi               0.1028
+swir1_mean5        0.1012
+swir2              0.0799
+nir_mean5          0.0616
+swir1              0.0601
+red_mean5          0.0407
+ndbi               0.0378
+blue_mean5         0.0323
+green_mean5        0.0311
+swir2_mean5        0.0238
+green              0.0196
+nir                0.0184
+red                0.0179
+swir1_var5         0.0169
+blue               0.0158
+red_var5           0.0150
+blue_var5          0.0098
+green_var5         0.0063
+swir2_var5         0.0062
+nir_var5           0.0021
+Saved chart to outputs/permutation_importance.png
+
+Part 2: error analysis, reading maps from data/processed/flood_map_predictions
+Saved per-chip table to outputs/per_chip_errors.csv
+Saved error breakdown to outputs/error_breakdown.csv
+
+Error breakdown for lightgbm
+event       false_alarm   miss   edge_pixels  edge_errors  perm_miss  flood_miss
+Bolivia           0.007  0.162        0.062        0.358      0.081       0.168
+Ghana             0.004  0.233        0.020        0.166      0.154       0.244
+India             0.012  0.082        0.109        0.534      0.005       0.101
+Mekong            0.011  0.012        0.075        0.317      0.006       0.015
+Nigeria           0.014  0.023        0.073        0.442      0.001       0.025
+Pakistan          0.033  0.093        0.032        0.216      0.075       0.097
+Paraguay          0.003  0.216        0.043        0.334      0.014       0.324
+Somalia           0.015  0.085        0.052        0.317      0.000       0.085
+Spain             0.013  0.028        0.072        0.633      0.012       0.038
+Sri-Lanka         0.006  0.058        0.042        0.478      0.009       0.169
+USA               0.005  0.126        0.036        0.497      0.002       0.187
+ALL               0.009  0.090        0.055        0.389      0.014       0.121
+
+Saved feature means to outputs/error_feature_means.csv
+
+Mean feature values, all events (lightgbm)
+outcome          pixels      mndwi     ndwi     ndvi      nir    swir1
+true_water       9695872      0.508    0.156   -0.104    0.100    0.045
+true_land       89432781     -0.248   -0.374    0.454    0.270    0.206
+false_alarm       834622      0.055   -0.132    0.193    0.197    0.138
+miss              959585      0.056   -0.151    0.241    0.172    0.119
+
+Worst chips for lightgbm (at least 1000 water pixels):
+    Ghana_141271: IoU 0.000
+    Sri-Lanka_163406: IoU 0.001
+    Bolivia_195474: IoU 0.002
+Saved figures to outputs/worst_chips
+
+Total time: 1.4 min
+EXIT CODE 0
+Tue Nov 24 01:59:10 AM IST 2026
